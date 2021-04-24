@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}
+<title>{{ guild.name }} -NoUse Bot</title>
+<style>
+    .dropdown-content {
+        width: 200px
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<form id="form" method="POST">
+    <h4>Send Message</h4>
+    <div class="dropdown">
+        <input id="channelInput" placeholder="Channel" name="channelName" class="dropinp" type="text" onkeyup="filterFunc()" autocomplete=off>
+        <div id="channelContent" class="dropdown-content">
+        </div>
+    </div>
+    <input id="channelIdInput" type="hidden" name="channel">
+    <input name="message" placeholder="Message" type="text">
+    <input type="submit" onsubmit="localStorage.clear()" value="Send">
+</form>
+<script>
+    let categories = JSON.parse('{{ categories | tojson }}')
+    let unfocus = name => channelInput.value=name
+    let setChannel = (name, id) => {
+        filterFunc()
+        channelIdInput.value=`${id}`
+        channelInput.setAttribute("onfocusout", `unfocus('${name}')`)
+        unfocus(name)
+        cacheInput(channelInput)
+        cacheInput(channelIdInput)
+    }
+    channelInput.onclick = () => {
+        if (channelIdInput.value!="") {
+            channelInput.value=""
+            filterFunc()
+        }
+    }
+    let filterFunc = () => {
+        channelContent.innerHTML=""
+        let value= channelInput.value.toLowerCase();
+        for (let [category_id, category_details] of Object.entries(categories)) {
+            let categoryElement = document.createElement("p")
+            categoryElement.innerHTML=category_details["name"].toUpperCase()
+            channelContent.appendChild(categoryElement)
+            let channelListElement = document.createElement("ul")
+            for (let [channel_id, channel_name] of Object.entries(category_details.channels)) {
+                if (channel_name.includes(value)) {
+                    let channelElement = document.createElement("li");
+                    channelElement.innerHTML =  channel_name+ ((channel_id===channelIdInput.value)?"(selected)":"")
+                    channelElement.setAttribute("onclick", `setChannel('${channel_name}','${channel_id}')`)
+                    channelListElement.appendChild(channelElement);
+                }
+            }
+            channelContent.append(channelListElement);
+        }
+    }
+    
+    let getCachedValue = e => localStorage.getItem(e.attributes['name'].value)
+    let cacheInput = e => localStorage.setItem(e.attributes["name"].value, e.value) 
+    
+    let cacheLoad = (e) => {
+        let etag = e.tagName.toLowerCase();
+        if (["form","div"].includes(etag)) {
+            for (let elements of e.children) { cacheLoad(elements); }
+        }
+        if (etag === "input" && e.attributes['name'] && ['text','hidden'].includes(e.attributes["type"])) {
+            let cacheValue = getCachedValue(e);
+            e.value = cacheValue || ""
+        }
+    }
+    window.onload = () => {
+        filterFunc()
+        let server_id = "{{ server_id }}";
+        let localServer = localStorage.getItem("server")
+        if (localServer != null && server_id != localServer) { localStorage.clear() }
+        localStorage.setItem("server", server_id)
+        cacheLoad(form)
+    }
+</script>
+{% endblock %}

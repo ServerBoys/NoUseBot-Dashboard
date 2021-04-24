@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}
+<title>Dashboard</title>
+<link rel="stylesheet" href= " {{ url_for('static', filename='css/dashboard.css') }} ">
+{% endblock %}
+
+{% block body %}
+<h5> Servers </h5>
+<div class="guilds container-fluid no-invert">
+    {% for row in guilds_row_col %}
+    <div class="row">
+        {% for col in row %}
+        <div class="col-4 guild-container">
+            <a class="text-decoration-none" href=" {{ url_for('server', server_id=col.id) }} ">
+                <div class="guild">
+                    <img height="125px" class="rounded-circle pt-1 pb-1" src=" {{ col.icon_url }} ">
+                    <p class="guild_name d-inline text-center pt-1 pb-1">{{ col.name }}</p>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div> 
+    {% endfor %}
+</div>
+{% endblock %}

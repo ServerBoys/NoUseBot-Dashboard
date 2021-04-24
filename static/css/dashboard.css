@@ -1,0 +1,22 @@
+.guild_name {
+    color: red;
+    font-size: 70%
+}
+
+.guilds {
+    margin: 0;
+}
+
+.guild-container {
+    padding-left: 0.2%;
+    padding-right: 0.2%;
+    
+}
+
+.guild {
+    background-image: linear-gradient(45deg, #D391FA, #C364FA, #A230ED, #6B00D7, #3E00B3, #190087);
+    border-radius: 3%;
+    padding-top: 1%;
+    margin-bottom: 1%;
+    padding-left: 0.1%;
+}

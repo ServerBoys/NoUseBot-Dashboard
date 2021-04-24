@@ -1,0 +1,4 @@
+quartz
+quartz_discord
+discord-ext-ipc
+python-dotenv

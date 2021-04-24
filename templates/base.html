@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      <meta name="description" content="">
+      <meta name="author" content="">
+      <link rel="stylesheet" type="text/css" href=" {{ url_for('static', filename='css/base.css') }} ">
+      <link rel="stylesheet" href=" {{ url_for('static', filename='css/bootstrap.min.css') }} ">
+      <link rel="icon" href=" {{ url_for('static', filename='image/pfp.png') }} " type="image/icon">
+    {% block title %} {% endblock %}
+  </head>
+
+  <body id="body">
+      <nav class="navbar no-invert">
+          <div class="ml-4 mt-3">
+              <strong>NoUse Bot DashBoard</strong>
+              <img height=30px class="mb-2" src=" {{ url_for('static', filename='image/pfp.png') }} ">
+          </div>
+          <div class="mr-6 mt-2">
+              {% if not user %}
+              <a class="btn btn-primary" href=" {{ url_for('login') }} ">Login</a>
+              {% else %}
+              <div class="dropdown">
+                  <div class='dropbtn'>
+                      <img height=38px class="rounded-circle" src=" {{ user.avatar_url }} ">
+                      <span class="caret"></span>
+                  </div>
+                  <div class="dropdown-content dropleft">
+                      <a href="#">Profile</a>
+                      <a href=" {{ url_for('dashboard') }} ">Servers</a>
+                      <a href=" {{ url_for('logout') }} ">Logout</a>
+                  </div>
+              </div>
+              {% endif %}
+          </div>
+      </nav>
+      <div>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+              {% for category, message in messages %}
+                  <div class="alert alert-{{ category }}" role="alert">
+                      {{ message }}
+                      <button type="button" class="close alert-close" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                      </button>
+                  </div>
+              {% endfor %}
+          {% endif %}
+      {% endwith %}
+      </div>
+      <div class="container-fluid body-block">
+          {% block body %} {% endblock %}
+      </div>
+      <footer class="no-invert" style="background:#333">
+          <div class="container-fluid ml-3 text-white">
+              <div class="row">
+                  <div class="col">
+                      <p class="text-white d-inline">Dark Mode</p>
+                      <label class="switch">
+                          <input id="darkmode" type="checkbox">
+                          <span class="slider round"></span>
+                      </label>
+                  </div>
+              </div>
+              <div class="row">
+                  <div class="col">
+                      <span>&copy;</span><em>2021 NoUse Bot</em>
+                  </div>
+              </div>
+          </div>
+      </footer>
+      <script src= " {{ url_for('static', filename='js/bootstrap.min.js') }} "></script>
+      <script src= " {{ url_for('static', filename='js/bootstrap.bundle.min.js') }} "></script>
+      <script>
+          darkmode.onclick = () => {
+              document.documentElement.classList.toggle('dark-mode');
+              document.querySelectorAll('.no-invert').forEach((result) => {
+                  result.classList.toggle('invert');
+              });
+          }
+          document.querySelectorAll('.alert-close').forEach((result) => {
+              result.onclick = () => {
+                  let parent= result.parentElement
+                  if (parent.classList.contains("alert")) {
+                      parent.remove();
+                  }
+              }
+          });
+      
+      </script>
+  </body>
+
+</html>

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}
+<title>NoUse Bot</title>
+<link rel="stylesheet" href='{{ url_for("static", filename="css/index.css") }}'>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.1.7/css/fork-awesome.min.css" integrity="sha256-gsmEoJAws/Kd3CjuOQzLie5Q3yshhvmo7YNtBG7aaEY=" crossorigin="anonymous">
+{% endblock %}
+
+{% block body %}
+
+    <div class="container m-auto">
+        {% if not user %}
+        <a class='btn btn-primary' href=" {{ url_for('login') }} "><i class="fa fa-discord" aria-hidden="true"></i> Log in with Discord</a>
+        {% else %}
+        <a class='btn btn-primary' href=" {{ url_for('dashboard') }} "><span color="black">&#9881;</span>Dashboard</a>
+        {% endif %}
+    </div>
+
+{% endblock %}
