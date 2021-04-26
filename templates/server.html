@@ -10,27 +10,31 @@
 {% endblock %}
 
 {% block body %}
-<form id="form" method="POST">
+<iframe name="sendPost" src="#" hidden></iframe>
+<form id="formSend" method="POST" target="sendPost">
     <h4>Send Message</h4>
-    <div class="dropdown">
+    <div class="dropdownMenu">
         <input id="channelInput" placeholder="Channel" name="channelName" class="dropinp" type="text" onkeyup="filterFunc()" autocomplete=off>
         <div id="channelContent" class="dropdown-content">
         </div>
     </div>
     <input id="channelIdInput" type="hidden" name="channel">
-    <input name="message" placeholder="Message" type="text">
+    <input name="message" placeholder="Message" type="text" autocomplete=off>
     <input type="submit" onsubmit="localStorage.clear()" value="Send">
 </form>
+{% endblock %}
+
+{% block script %}
 <script>
     let categories = JSON.parse('{{ categories | tojson }}')
     let unfocus = name => channelInput.value=name
-    let setChannel = (name, id) => {
-        filterFunc()
+    let setChannel = (id, name, style) => {
         channelIdInput.value=`${id}`
         channelInput.setAttribute("onfocusout", `unfocus('${name}')`)
         unfocus(name)
         cacheInput(channelInput)
         cacheInput(channelIdInput)
+        filterFunc()
     }
     channelInput.onclick = () => {
         if (channelIdInput.value!="") {
@@ -44,18 +48,30 @@
         for (let [category_id, category_details] of Object.entries(categories)) {
             let categoryElement = document.createElement("p")
             categoryElement.innerHTML=category_details["name"].toUpperCase()
-            channelContent.appendChild(categoryElement)
             let channelListElement = document.createElement("ul")
+            let categoryExists= false;
             for (let [channel_id, channel_name] of Object.entries(category_details.channels)) {
-                if (channel_name.includes(value)) {
-                    let channelElement = document.createElement("li");
-                    channelElement.innerHTML =  channel_name+ ((channel_id===channelIdInput.value)?"(selected)":"")
-                    channelElement.setAttribute("onclick", `setChannel('${channel_name}','${channel_id}')`)
-                    channelListElement.appendChild(channelElement);
-                }
+                let channelName = channel_name+ ((channel_id===channelIdInput.value)?"(selected)":"")
+                categoryExists= createDropdownList(channel_id, channelName, value, channelListElement, "setChannel", {})
             }
-            channelContent.append(channelListElement);
+            if (categoryExists) {
+                channelContent.appendChild(categoryElement);
+                channelContent.appendChild(channelListElement);
+            }
         }
+    }
+    
+    let createDropdownList = (id, name, value, parentElement, onclick, style={}) => {
+        if (name.includes(value)) {
+            let element = document.createElement("li");
+            element.innerHTML= name;
+            for (let [style_name, style_val] of Object.entries(style)) {
+                element.style[style_name] = style_val;
+            }
+            element.setAttribute("onclick", `${onclick}('${id}','${name}', ${JSON.stringify(style)})`);
+            parentElement.appendChild(element);
+            return true;
+        } else { return false; }
     }
     
     let getCachedValue = e => localStorage.getItem(e.attributes['name'].value)
@@ -66,7 +82,8 @@
         if (["form","div"].includes(etag)) {
             for (let elements of e.children) { cacheLoad(elements); }
         }
-        if (etag === "input" && e.attributes['name'] && ['text','hidden'].includes(e.attributes["type"])) {
+        if (etag==="input" && e.attributes['name']) {console.log(e)}
+        if (etag === "input" && e.attributes['name'] && ['text','hidden'].includes(e.attributes["type"].value)) {
             let cacheValue = getCachedValue(e);
             e.value = cacheValue || ""
         }
@@ -74,10 +91,11 @@
     window.onload = () => {
         filterFunc()
         let server_id = "{{ server_id }}";
+        console.log(server_id)
         let localServer = localStorage.getItem("server")
         if (localServer != null && server_id != localServer) { localStorage.clear() }
         localStorage.setItem("server", server_id)
-        cacheLoad(form)
+        cacheLoad(formSend)
     }
 </script>
 {% endblock %}

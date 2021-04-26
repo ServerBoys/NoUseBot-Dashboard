@@ -1,6 +1,5 @@
-import quart.flask_patch
-from quart import Quart, render_template, request, session, redirect, url_for, flash
-from quart_discord import DiscordOAuth2Session, Unauthorized
+from quart import Quart, render_template, request, session, redirect, url_for, flash, flask_patch
+from quart_discord import DiscordOAuth2Session, Unauthorized, configs
 from quart_discord.utils import requires_authorization as req_auth
 from modules import *
 from dotenv import load_dotenv
@@ -26,7 +25,11 @@ async def home():
 
 @app.route("/login")
 async def login():
-	return await discord.create_session(prompt=None)
+    try:
+        await discord.fetch_user()
+        return redirect(url_for("home"))
+    except Unauthorized:
+	    return await discord.create_session(prompt=None)
 
 @app.route("/logout")
 async def logout():
@@ -44,7 +47,6 @@ async def dashboard():
     global ipc_client
     user= await discord.fetch_user()
     user_guilds= await discord.fetch_guilds()
-    
     ipc_client = await create_client(ipc_client)
     if ipc_client is None:
         guild_ids = []
@@ -81,7 +83,6 @@ async def server(server_id):
     if request.method=="POST":
         form = await request.form
         response = await ipc_client.request('send_message', guild_id=int(server_id), channel_id=int(form['channel']), message={"content":form['message']})
-        print(response)
         return redirect(url_for('server', server_id=server_id))
     
 @app.errorhandler(Unauthorized)

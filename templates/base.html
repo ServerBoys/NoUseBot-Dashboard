@@ -22,7 +22,7 @@
               {% if not user %}
               <a class="btn btn-primary" href=" {{ url_for('login') }} ">Login</a>
               {% else %}
-              <div class="dropdown">
+              <div class="dropdownMenu">
                   <div class='dropbtn'>
                       <img height=38px class="rounded-circle" src=" {{ user.avatar_url }} ">
                       <span class="caret"></span>
@@ -90,6 +90,7 @@
           });
       
       </script>
+      {% block script %}{% endblock %}
   </body>
 
 </html>
